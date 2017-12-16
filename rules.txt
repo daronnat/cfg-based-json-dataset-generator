@@ -1,0 +1,44 @@
+#########################
+# GENERATION RULES FILE #
+#########################
+# This file (plain text) contains the categories, terms and corresponding tags used in the question generation program
+# if the line begin with a "#" (comment) it will not be parsed by the program
+#######################
+# 1) META CATEGORIES  #
+#######################
+# A meta category is a regroupment of regular categories, it's used as a shortcut in the combinatory process
+# SYNTAX (needed for each different meta category separated by a newline):
+# {META}meta_name|meta_suffixe(optional)=category1,category2
+# "=" separate the name of the meta category from the categories, "," is used as a delimiter between each categories
+{META}restaurants_and_shops=shops,restaurants
+######################################
+# 2) REGULAR CATEGORIES (structures) #
+######################################
+# regular categories containing various lexical elements
+# SYNTAX : (needed for each different categories separated by a newline):
+# category_name=string1,string2
+# "=" separate the name of the category from the strings, "," is used as a delimiter between each strings
+first_person=I am,I'm
+verbs=looking for,searching for,willing to find
+preposition=a
+###############################################
+# 3) REGULAR CATEGORIES (keywords)            #
+###############################################
+# regular categories containing various semantic elements
+# SYNTAX : (needed for each different categories separated by a newline):
+# category_name|keyword=string1,string2
+# "=" separate the name of the category from the strings, "," is used as a delimiter between each strings
+restaurants|keyword=mexican restaurant,fast food restaurant,chinese restaurant,delicious french restaurant
+shops|keyword=supermarket,hypermarket,small shop
+##################
+# 4) COMBINATORY #
+##################
+# Here start the definition of the Cartesian products of categories/meta-categories used to create queries
+# SYNTAX : [COMBINATORY]=INTENT_TAG|ENTITY_TAG:category1,category2;category1,category3
+# ":" delimits intents and entities from their corresponding structures, ";" -> delimits each structures "," -> delimits categories within structures
+################################
+# intent: get_document (former get_problem_procedure)
+# ej: "I have,lvl3pb,what is,the?,procedure" + same with aircraft specifications
+[COMBINATORY]=get_restaurants|food:first_person,verbs,preposition,restaurants
+[COMBINATORY]=get_shops|buy:first_person,verbs,preposition,shops
+#[COMBINATORY]=get_shops_or_restaurants|food_store:first_person,verbs,preposition,restaurants_and_shops
