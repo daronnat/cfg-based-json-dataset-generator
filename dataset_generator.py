@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 TITLE Synthetic Queries Generator
-- input : generation rules & terms, lexinet file
+- input : generation rules & terms, external_dictionary file
 - output : synthetic JSON dataset
 LANGUAGE: Python 3.6 x64
 AUTHOR: Sylvain Daronnat
@@ -33,12 +33,11 @@ gen_rules=defaultdict(list) # store the content of the generation rules file
 possible_combinations=defaultdict(list) # contains the possible combinations of categories
 meta_repertory=defaultdict(list) # contains meta categories names and their categories
 meta_suf={} # contains meta suffixes
-lexinet={} # contains fullnames of lexinet abreviations
+external_dictionary={} # contains fullnames of external_dictionary abreviations
 # COUNTER
 cnt_intents=Counter() # number of intents in the output file
 # LISTS
 list_kwd=[] # contains terms indicated as being "keywords"
-aircrafts=[] # list of aircraft denominations
 # SET
 query_set=set() # contain generated queries, safeguard against duplicates
 # BOOLEAN
@@ -53,11 +52,11 @@ def norma_res(a_string):
 	new_str=""
 	split_str=a_string.split(" ")
 	for v in split_str:
-		if v in lexinet: # we look into Lexinet to see if the term already exists
+		if v in external_dictionary: # we look into external_dictionary to see if the term already exists
 			if new_str:
-				new_str+=" "+lexinet[v]
+				new_str+=" "+external_dictionary[v]
 			else:
-				new_str=lexinet[v]
+				new_str=external_dictionary[v]
 		else:
 			if new_str:
 				new_str+=" "+v
@@ -106,22 +105,6 @@ for cat in rules_file:
 			meta_repertory[meta_name].append(catego.strip()) # append to a meta dict
 			if suf_name:
 				meta_suf[catego.strip()]=suf_name
-
-	elif(re.search('^\{AC\}',cat)): # parsing of the aicraft acronyms
-			stripped_cat=cat.strip("{AC}")
-			get_name_elem=stripped_cat.split("=")
-			name=get_name_elem[0]
-			ac_names=get_name_elem[1]
-			ac_names=ac_names.strip()
-			ac_names=ac_names.lower()
-			if (re.search(',',ac_names)):
-				aircrafts_names=ac_names.split(',')
-				for ac_type in aircrafts_names:
-					aircrafts.append(ac_type) # append to list of aircraft names
-					gen_rules[name].append(ac_type) # aicraft names are also considered as lexical terms
-			else:
-				aircrafts.append(ac_names)
-				gen_rules[name].append(ac_names)
 
 	elif(re.search('^\[COMBINATORY\]',cat)): # parsing of the combinatorial rules
 		get_intent_combi=cat.split("=")
@@ -221,11 +204,8 @@ for intent_name in possible_combinations: # we read the keys of the combination 
 			for elem in eval_cmd: # iteration over every generated combinations in the list
 				synthetic_query="" # we initiate the variable that we will write as a final output
 				lemma=""
-				ac_specified=False
+
 				for term in elem: # for possible terms (may they be multiple or single)
-					if term in aircrafts:
-						ac_specified=True
-						name_of_ac=copy.copy(term)
 					if term in list_kwd:
 						term_to_find=copy.copy(term)
 						if tok_tag_dict[term] in meta_suf:
@@ -256,12 +236,7 @@ for intent_name in possible_combinations: # we read the keys of the combination 
 					processing=True
 					output_json.write('\n\t\t\t{"text": "'+synthetic_query+'", "intent": "'+intent_name+'", "entities": [{"start": '
 						+str(start_idx)+', "end": '+str(end_idx)+', "value": "'+lemma+'", "entity": "'+entity_name+'"}')
-					if ac_specified is True: # specify the a/c type if it was indicated
-						start_idx_ac=synthetic_query.index(name_of_ac)
-						end_idx_ac=start_idx_ac+len(name_of_ac)
-						output_json.write(', {"start": '+str(start_idx_ac)+', "end": '+str(end_idx_ac)+', "value": "'+name_of_ac+'", "entity": "aircraft"}]}')
-					else:
-						output_json.write(']}')
+					output_json.write(']}')
 					cpt+=1 # increment the counter of unique queries
 				else:
 					cpt_dupli+=1
