@@ -34,7 +34,7 @@ Here is a description of the different elements:
 
 ## Authors
 
-* **Sylvain Daronnat** - [Sylvain Daronnat's github](https://github.com/Daronnat)
+* **Sylvain Daronnat** - [Sylvain Daronnat's github](https://github.com/daronnat)
 
 ## License
 
